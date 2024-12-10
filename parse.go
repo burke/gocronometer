@@ -85,6 +85,33 @@ type ServingsExport struct {
 	Records ServingRecords
 }
 
+const (
+	DateTimeFormat = "2006-01-02 15:04"
+)
+
+// parseDateTime handles parsing of Cronometer date+time strings
+func parseDateTime(date, timeStr string, location *time.Location) (time.Time, error) {
+	if location == nil {
+		location = time.UTC
+	}
+
+	// Default to midnight if no time provided
+	if timeStr == "" {
+		timeStr = "00:00"
+	}
+
+	// Combine date and time
+	dateTimeStr := date + " " + timeStr
+
+	// Parse with location
+	t, err := time.ParseInLocation(DateTimeFormat, dateTimeStr, location)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid date/time format %q: %w", dateTimeStr, err)
+	}
+
+	return t, nil
+}
+
 func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (ServingRecords, error) {
 
 	r := csv.NewReader(rawCSVReader)
@@ -529,9 +556,10 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 		if location == nil {
 			location = time.UTC
 		}
-		serving.RecordedTime, err = time.ParseInLocation("2006-01-02 15:04 PM", date+" "+timeStr, location)
+
+		serving.RecordedTime, err = parseDateTime(date, timeStr, location)
 		if err != nil {
-			return nil, fmt.Errorf("parsing record time: %s", err)
+			return nil, fmt.Errorf("parsing serving time: %w", err)
 		}
 		servings = append(servings, serving)
 	}
@@ -621,9 +649,9 @@ func ParseExerciseExport(rawCSVReader io.Reader, location *time.Location) (Exerc
 		if location == nil {
 			location = time.UTC
 		}
-		exercise.RecordedTime, err = time.ParseInLocation("2006-01-02 15:04 PM", date+" "+timeStr, location)
+		exercise.RecordedTime, err = parseDateTime(date, timeStr, location)
 		if err != nil {
-			return nil, fmt.Errorf("parsing record time: %s", err)
+			return nil, fmt.Errorf("parsing exercise time: %w", err)
 		}
 		exercises = append(exercises, exercise)
 	}
@@ -701,9 +729,9 @@ func ParseBiometricRecordsExport(rawCSVReader io.Reader, location *time.Location
 		if location == nil {
 			location = time.UTC
 		}
-		bioRecord.RecordedTime, err = time.ParseInLocation("2006-01-02 15:04 PM", date+" "+timeStr, location)
+		bioRecord.RecordedTime, err = parseDateTime(date, timeStr, location)
 		if err != nil {
-			return nil, fmt.Errorf("parsing record time: %s", err)
+			return nil, fmt.Errorf("parsing biometric time: %w", err)
 		}
 		records = append(records, bioRecord)
 	}
