@@ -156,398 +156,386 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 			case "Food Name":
 				serving.FoodName = v
 			case "Amount":
-				s := strings.Split(v, " ")
-				quantityValue, err := parseFloat(s[0], 64)
-				if err != nil {
-					return nil, fmt.Errorf("parsing quantity value: %s", err)
+				parts := strings.SplitN(v, " ", 2)
+				if len(parts) < 2 {
+					return nil, fmt.Errorf("invalid amount format %q, expected 'value unit'", v)
 				}
-				serving.QuantityValue = quantityValue
-				serving.QuantityUnits = strings.Join(s[1:], "")
-
-			case "Energy (kcal)":
-				f, err := parseFloat(v, 64)
+				f, err := parseFloat(parts[0], 64)
 				if err != nil {
-					return nil, fmt.Errorf("parsing energy: %s", err)
+					return nil, fmt.Errorf("parsing quantity value %q: %w", parts[0], err)
+				}
+				serving.QuantityValue = f
+				serving.QuantityUnits = parts[1]
+			case "Energy (kcal)":
+				f, err := parseNutrientFloat(v, "energy")
+				if err != nil {
+					return nil, err
 				}
 				serving.EnergyKcal = f
-
 			case "Caffeine (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "caffeine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing caffeine: %s", err)
+					return nil, err
 				}
 				serving.CaffeineMg = f
-
 			case "Water (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "water")
 				if err != nil {
-					return nil, fmt.Errorf("parsing water: %s", err)
+					return nil, err
 				}
 				serving.WaterG = f
-
 			case "B1 (Thiamine) (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B1")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b1: %s", err)
+					return nil, err
 				}
 				serving.B1Mg = f
-
 			case "B2 (Riboflavin) (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B2")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b2: %s", err)
+					return nil, err
 				}
 				serving.B2Mg = f
-
 			case "B3 (Niacin) (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B3")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b3: %s", err)
+					return nil, err
 				}
 				serving.B3Mg = f
-
 			case "B5 (Pantothenic Acid) (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B5")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b5: %s", err)
+					return nil, err
 				}
 				serving.B5Mg = f
-
 			case "B6 (Pyridoxine) (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B6")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b6: %s", err)
+					return nil, err
 				}
 				serving.B6Mg = f
-
 			case "B12 (Cobalamin) (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin B12")
 				if err != nil {
-					return nil, fmt.Errorf("parsing b12: %s", err)
+					return nil, err
 				}
 				serving.B12Mg = f
-
 			case "Biotin (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "biotin")
 				if err != nil {
-					return nil, fmt.Errorf("parsing biotin: %s", err)
+					return nil, err
 				}
 				serving.BiotinUg = f
-
 			case "Choline (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "choline")
 				if err != nil {
-					return nil, fmt.Errorf("parsing choline: %s", err)
+					return nil, err
 				}
 				serving.CholineMg = f
-
 			case "Folate (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "folate")
 				if err != nil {
-					return nil, fmt.Errorf("parsing folate: %s", err)
+					return nil, err
 				}
 				serving.FolateUg = f
-
 			case "Vitamin A (IU)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin A")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman a: %s", err)
+					return nil, err
 				}
 				serving.VitaminAUI = f
-
 			case "Vitamin C (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin C")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.VitaminCMg = f
-
 			case "Vitamin D (IU)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin D")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.VitaminDUI = f
 			case "Vitamin E (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin E")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.VitaminEMg = f
 			case "Vitamin K (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "vitamin K")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.VitaminKMg = f
 			case "Calcium (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "calcium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.CalciumMg = f
 			case "Chromium (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "chromium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ChromiumUg = f
 			case "Copper (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "copper")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.CopperMg = f
 			case "Fluoride (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "fluoride")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.FluorideUg = f
 			case "Iodine (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "iodine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.IodineUg = f
 			case "Iron (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "iron")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.IronMg = f
 			case "Magnesium (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "magnesium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.MagnesiumMg = f
 			case "Manganese (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "manganese")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ManganeseMg = f
 			case "Phosphorus (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "phosphorus")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.PhosphorusMg = f
 			case "Potassium (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "potassium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.PotassiumMg = f
 			case "Selenium (µg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "selenium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.SeleniumUg = f
 			case "Sodium (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "sodium")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.SodiumMg = f
 			case "Zinc (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "zinc")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ZincMg = f
 			case "Carbs (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "carbohydrates")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.CarbsG = f
 			case "Fiber (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "fiber")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.FiberG = f
 			case "Fructose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "fructose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.FructoseG = f
 			case "Galactose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "galactose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.GalactoseG = f
 			case "Glucose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "glucose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.GlucoseG = f
 			case "Lactose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "lactose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.LactoseG = f
 			case "Maltose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "maltose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.MaltoseG = f
 			case "Starch (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "starch")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.StarchG = f
 			case "Sucrose (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "sucrose")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.SucroseG = f
 			case "Sugars (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "sugars")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.SugarsG = f
 			case "Net Carbs (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "net carbs")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.NetCarbsG = f
 			case "Fat (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "fat")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.FatG = f
 			case "Cholesterol (mg)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "cholesterol")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.CholesterolMg = f
 			case "Monounsaturated (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "monounsaturated fat")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.MonounsaturatedG = f
 			case "Polyunsaturated (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "polyunsaturated fat")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.PolyunsaturatedG = f
 			case "Saturated (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "saturated fat")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.SaturatedG = f
 			case "Trans-Fats (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "trans fat")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.TransFatG = f
 			case "Omega-3 (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "omega-3")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.Omega3G = f
 			case "Omega-6 (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "omega-6")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.Omega6G = f
 			case "Cystine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "cystine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.CystineG = f
 			case "Histidine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "histidine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.HistidineG = f
 			case "Isoleucine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "isoleucine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.IsoleucineG = f
 			case "Leucine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "leucine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.LeucineG = f
 			case "Lysine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "lysine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.LysineG = f
 			case "Methionine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "methionine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.MethionineG = f
 			case "Phenylalanine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "phenylalanine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.PhenylalanineG = f
 			case "Protein (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "protein")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ProteinG = f
 			case "Threonine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "threonine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ThreonineG = f
 			case "Tryptophan (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "tryptophan")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.TryptophanG = f
 			case "Tyrosine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "tyrosine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.TyrosineG = f
 			case "Valine (g)":
-				f, err := parseFloat(v, 64)
+				f, err := parseNutrientFloat(v, "valine")
 				if err != nil {
-					return nil, fmt.Errorf("parsing vitiman c: %s", err)
+					return nil, err
 				}
 				serving.ValineG = f
 			case "Category":
 				serving.Category = v
-
 			}
+
 		}
 		if timeStr == "" {
 			timeStr = "00:00 AM"
@@ -738,4 +726,12 @@ func ParseBiometricRecordsExport(rawCSVReader io.Reader, location *time.Location
 
 	return records, nil
 
+}
+
+func parseNutrientFloat(value, nutrient string) (float64, error) {
+	f, err := parseFloat(value, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parsing %s value %q: %w", nutrient, value, err)
+	}
+	return f, nil
 }
