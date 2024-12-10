@@ -538,7 +538,7 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 
 		}
 		if timeStr == "" {
-			timeStr = "00:00 AM"
+			timeStr = "00:00"
 		}
 
 		if location == nil {
@@ -631,7 +631,7 @@ func ParseExerciseExport(rawCSVReader io.Reader, location *time.Location) (Exerc
 			}
 		}
 		if timeStr == "" {
-			timeStr = "00:00 AM"
+			timeStr = "00:00"
 		}
 
 		if location == nil {
@@ -711,7 +711,7 @@ func ParseBiometricRecordsExport(rawCSVReader io.Reader, location *time.Location
 			}
 		}
 		if timeStr == "" {
-			timeStr = "00:00 AM"
+			timeStr = "00:00"
 		}
 
 		if location == nil {
