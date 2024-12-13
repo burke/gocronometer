@@ -534,6 +534,8 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 				serving.ValineG = f
 			case "Category":
 				serving.Category = v
+			default:
+				fmt.Printf("Unknown category: %s\n", v)
 			}
 
 		}
