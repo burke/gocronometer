@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -27,7 +28,7 @@ type ServingRecord struct {
 	BiotinUg         float64
 	CholineMg        float64
 	FolateUg         float64
-	VitaminAUI       float64
+	VitaminAUg       float64
 	VitaminCMg       float64
 	VitaminDUI       float64
 	VitaminEMg       float64
@@ -76,6 +77,7 @@ type ServingRecord struct {
 	ValineG          float64
 	ProteinG         float64
 	IronMg           float64
+	AlcoholG         float64
 	Category         string
 }
 
@@ -238,12 +240,12 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 					return nil, err
 				}
 				serving.FolateUg = f
-			case "Vitamin A (IU)":
+			case "Vitamin A (µg)":
 				f, err := parseNutrientFloat(v, "vitamin A")
 				if err != nil {
 					return nil, err
 				}
-				serving.VitaminAUI = f
+				serving.VitaminAUg = f
 			case "Vitamin C (mg)":
 				f, err := parseNutrientFloat(v, "vitamin C")
 				if err != nil {
@@ -532,10 +534,16 @@ func ParseServingsExport(rawCSVReader io.Reader, location *time.Location) (Servi
 					return nil, err
 				}
 				serving.ValineG = f
+			case "Alcohol (g)":
+				f, err := parseNutrientFloat(v, "alcohol")
+				if err != nil {
+					return nil, err
+				}
+				serving.AlcoholG = f
 			case "Category":
 				serving.Category = v
 			default:
-				fmt.Printf("Unknown category: %s\n", columnName)
+				fmt.Fprintf(os.Stderr, "Unknown category: %s\n", columnName)
 			}
 
 		}
