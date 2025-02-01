@@ -97,6 +97,9 @@ func parseDateTime(date, timeStr string, location *time.Location) (time.Time, er
 		location = time.UTC
 	}
 
+	date = strings.TrimSpace(date)
+	timeStr = strings.TrimSpace(timeStr)
+
 	// Default to midnight if no time provided
 	if timeStr == "" {
 		timeStr = "00:00"
